@@ -1,0 +1,7 @@
+#ignore files
+*.rc
+*.vcxproj
+*.filters
+*.log
+Debug/
+resource.h

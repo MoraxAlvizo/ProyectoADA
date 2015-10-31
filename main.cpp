@@ -13,11 +13,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#define MESH_FILE "sphere.obj"
-#define VERTEX_RED_SHADER_FILE "vsRed.glsl"
-#define VERTEX_PURPLE_SHADER_FILE "vsPurple.glsl"
-#define FRAGMENT_RED_SHADER_FILE "fsRed.glsl"
-#define FRAGMENT_PURPLE_SHADER_FILE "fsPurple.glsl"
+#define MESH_FILE "Meshes/sphere.obj"
+#define VERTEX_RED_SHADER_FILE "Shaders/vsRed.glsl"
+#define VERTEX_PURPLE_SHADER_FILE "Shaders/vsPurple.glsl"
+#define FRAGMENT_RED_SHADER_FILE "Shaders/fsRed.glsl"
+#define FRAGMENT_PURPLE_SHADER_FILE "Shaders/fsPurple.glsl"
 #define NUM_SPHERES 4
 
 
