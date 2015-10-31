@@ -1,8 +1,12 @@
 #pragma once
 
+#include <iostream>
+#include "MathUtils.h"
 #include "matriz4x4.h"
 #include "vector3.h"
 #include "versor.h"
+
+using namespace std;
 
 class GLCamera
 {
@@ -10,7 +14,7 @@ public:
 	GLCamera(float);
 	~GLCamera();
 	// camera functions
-	matriz4x4	look_at(const vector3& cam_pos, vector3 targ_pos, const vector3& up);
+	void		look_at(const vector3& cam_pos, vector3 targ_pos, const vector3& up);
 	matriz4x4	perspective(float fovy, float aspect, float near, float far);
 	void		moveYawLeft(double);
 	void		moveYawRight(double);
@@ -22,7 +26,7 @@ public:
 
 	// Set funtions
 	void setAspect(float aspect){ this->aspect = aspect; }
-	void setPosition(vector3 pos){ this->cam_pos = pos; T = identity_mat4().translate(vector3(-cam_pos.v[0], -cam_pos.v[1], -cam_pos.v[2]));}
+	void setPosition(vector3 pos);
 	
 	// Get funtions 
 	float getSpeed(){ return cam_speed; }

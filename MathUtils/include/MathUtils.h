@@ -4,5 +4,6 @@
 #include "versor.h"
 #include "matriz3x3.h"
 #include "matriz4x4.h"
-
+#define _USE_MATH_DEFINES
+#include <math.h>
 #define ONE_DEG_IN_RAD (2.0 * M_PI) / 360.0 // 0.017444444

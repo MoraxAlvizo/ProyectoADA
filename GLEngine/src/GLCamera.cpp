@@ -40,16 +40,19 @@ GLCamera::~GLCamera()
 
 /*-----------------------VIRTUAL CAMERA MATRIX FUNCTIONS----------------------*/
 // returns a view matrix using the opengl lookAt style. COLUMN ORDER.
-matriz4x4 GLCamera::look_at(const vector3& cam_pos, vector3 targ_pos, const vector3& up) {
+void GLCamera::look_at(const vector3& pos, vector3 targ_pos, const vector3& up_v) {
+
+	this->cam_pos = pos; 
+
 	// inverse translation
 	matriz4x4 p = identity_mat4();
-	p = p.translate(vector3(-cam_pos.v[0], -cam_pos.v[1], -cam_pos.v[2]));
+	p = p.translate(vector3(-pos.v[0], -pos.v[1], -pos.v[2]));
 	// distance vector
-	vector3 d = targ_pos - cam_pos;
+	vector3 d = targ_pos - pos;
 	// forward vector
 	vector3 f = d.normalise();
 	// right vector
-	vector3 r = cross(f, up).normalise();
+	vector3 r = cross(f, up_v).normalise();
 	// real up vector
 	vector3 u = cross(r, f).normalise();
 	matriz4x4 ori = identity_mat4();
@@ -62,8 +65,15 @@ matriz4x4 GLCamera::look_at(const vector3& cam_pos, vector3 targ_pos, const vect
 	ori.m[2] = -f.v[0];
 	ori.m[6] = -f.v[1];
 	ori.m[10] = -f.v[2];
+	R = ori;
+	T = p;
+	view_mat = R * T;
 
-	return ori * p;//p * ori;
+	// recalc axes to suit new orientation
+	mat4_to_quat(quaternion, R.m);
+	fwd = R * vector4(0.0, 0.0, -1.0, 0.0);
+	rgt = R * vector4(1.0, 0.0, 0.0, 0.0);
+	up  = R * vector4(0.0, 1.0, 0.0, 0.0);
 }
 
 // returns a perspective function mimicking the opengl projection style.
@@ -192,6 +202,28 @@ void GLCamera::updatePosition(vector3 move)
 	view_mat = R.inverse() * T.inverse();
 
 	cam_yaw = 0.0f;
+	cam_pitch = 0.0f;
+	cam_roll = 0.0;
+
+}
+
+void GLCamera::setPosition(vector3 pos)
+{ 
+	this->cam_pos = pos; 
+	T = identity_mat4().translate(vector3(-cam_pos.v[0], -cam_pos.v[1], -cam_pos.v[2]));
+	T = identity_mat4().translate( vector3(-cam_pos.v[0], -cam_pos.v[1], -cam_pos.v[2]) );
+
+	create_versor(quaternion, -cam_heading, 0.0f, 1.0f, 0.0f);
+	quat_to_mat4(R.m, quaternion);
+	// combine the inverse rotation and transformation to make a view matrix
+	view_mat = R * T;
+
+	// keep track of some useful vectors that can be used for keyboard movement
+	fwd = vector4(0.0f, 0.0f, -1.0f, 0.0f);
+	rgt = vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	up = vector4(0.0f, 1.0f, 0.0f, 0.0f);
+
+	cam_yaw = 0.0f; // y-rotation in degrees
 	cam_pitch = 0.0f;
 	cam_roll = 0.0;
 

@@ -18,6 +18,7 @@ void   create_versor(float* q, float a, float x, float y, float z);
 void quat_to_mat4(float* m, float* q);
 void mult_quat_quat(float* result, float* r, float* s);
 void normalise_quat(float* q);
+void mat4_to_quat(float *q, float* m);
 
 
 class versor {

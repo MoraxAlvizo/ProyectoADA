@@ -100,6 +100,8 @@ matriz4x4 quat_to_mat4(const versor& q) {
 		);
 }
 
+
+
 versor versor::normalise() {
 	// norm(q) = q / magnitude (q)
 	// magnitude (q) = sqrt (w*w + x*x...)
@@ -187,6 +189,16 @@ void quat_to_mat4(float* m, float* q) {
 	m[13] = 0.0f;
 	m[14] = 0.0f;
 	m[15] = 1.0f;
+}
+
+/* convert matriz4x4 to a unit quaternion */
+void mat4_to_quat(float *q, float* m)
+{
+	q[0] = sqrt(1.0 + m[0] + m[5] + m[10]) / 2.0;
+	double w4 = (4.0 * q[0]);
+	q[1] = (m[6] - m[9]) / w4 ;
+	q[2] = (m[2] - m[8]) / w4 ;
+	q[3] = (m[1] - m[4]) / w4 ;
 }
 
 /* multiply quaternions to get another one. result=R*S */

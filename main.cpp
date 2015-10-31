@@ -10,24 +10,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#define _USE_MATH_DEFINES
-#include <math.h>
+
 
 #define MESH_FILE "Meshes/sphere.obj"
 #define VERTEX_RED_SHADER_FILE "Shaders/vsRed.glsl"
 #define VERTEX_PURPLE_SHADER_FILE "Shaders/vsPurple.glsl"
 #define FRAGMENT_RED_SHADER_FILE "Shaders/fsRed.glsl"
 #define FRAGMENT_PURPLE_SHADER_FILE "Shaders/fsPurple.glsl"
-#define NUM_SPHERES 4
-
-
-// a world position for each sphere in the scene
-vector3 sphere_pos_wor[] = {
-	vector3(-2.0, 0.0, 0.0),
-	vector3(2.0, 0.0, 0.0),
-	vector3(-2.0, 0.0, -2.0),
-	vector3(1.5, 1.0, -1.0)
-};
 
 int main () {
 /*--------------------------------START OPENGL--------------------------------*/
@@ -64,9 +53,10 @@ int main () {
 	programRed->addVariable("proj");
 	
 /*-------------------------------CREATE CAMERA--------------------------------*/
-	
+	int limit = 20;
 	GLCamera camara((float)g_gl_width / (float)g_gl_height);
-	camara.setPosition(vector3(0.0f, 0.0f, 5.0f));
+	camara.look_at(vector3((float)30.0, (float)10.0, (float)30.0), vector3(5.0,5.0,5.0), vector3(5.0,5.0,5.0));
+	//camara.setPosition(vector3((float)15.0, (float)5.0, (float)15.0));
 	
 /*---------------------------SET RENDERING DEFAULTS---------------------------*/
 	
@@ -80,15 +70,16 @@ int main () {
 	// Create scene
 	GLScene* scene = new GLScene();
 
+	// Initial position
+	vector3 sphere_pos = vector3(0.0,0.0,0.0);
+	int i = 0;
 	//Create objects
-	for (int i = 0; i < NUM_SPHERES; i++) 
-	{
-		if(i%2)
-			scene->addMesh(new GLMesh(sphere, sphere_pos_wor[i], programPurple));
-		else
-			scene->addMesh(new GLMesh(sphere, sphere_pos_wor[i], programRed));
+	for(int x = 0; x < limit; x += 2)
+		for(int y = 0; y < limit; y += 2)
+			for(int z = 0; z < limit; z += 2)
+				scene->addMesh(new GLMesh(sphere, vector3(x,y,z), ++i%2? programRed : programPurple));
 
-	}	
+	scene->printProperties();
 	
 	glEnable (GL_DEPTH_TEST);			// enable depth-testing
 	glDepthFunc (GL_LESS);				// depth-testing interprets a smaller value as "closer"
@@ -98,7 +89,7 @@ int main () {
 	glClearColor (0.2, 0.2, 0.2, 1.0);	// grey background to help spot mistakes
 	glViewport (0, 0, g_gl_width, g_gl_height);
 	
-	vector3 position = sphere_pos_wor[0];
+	vector3 position = vector3(limit,limit,limit);
 	bool insertar = false;
 
 /*-------------------------------RENDERING LOOP-------------------------------*/
