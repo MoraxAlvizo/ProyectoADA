@@ -6,7 +6,7 @@ GLShader::GLShader(string shaderFile, unsigned int typeShader)
 	this->typeShader = typeShader;
 	codigoGLSL = NULL;
 	if( !readShader() )
-		cerr << "Error al leer archivo" << endl;
+		cerr << "Error al leer archivo: " << shaderFile << endl;
 	compileShader();		
 }
 

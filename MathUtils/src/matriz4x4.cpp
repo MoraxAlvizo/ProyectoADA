@@ -293,3 +293,18 @@ matriz4x4 identity_mat4() {
 		0.0f, 0.0f, 0.0f, 1.0f
 		);
 }
+
+matriz4x4 ortho(float left,
+		float right,
+		float  bottom,
+		float  top)
+{
+	float  zNear = -1;
+	float  zFar =1;
+	return matriz4x4(
+		(2) / (right - left), 0.0f, 0.0f, - (right + left) / (right - left),
+		0.0f, (2) / (top - bottom), 0.0f, - (top + bottom) / (top - bottom),
+		0.0f, 0.0f,- (2) / (zFar - zNear),- (zFar + zNear) / (zFar - zNear),
+		0.0f, 0.0f, 0.0f, 1.0f
+		);
+}

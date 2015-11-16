@@ -4,19 +4,22 @@
 #include "GLProgram.h"
 #include "GLObject.h"
 #include "GLMesh.h"
+#include "GLText.h"
 #include "GLScene.h"
-#include <GL/glew.h> 
+#include "GLOctree.h"
 #include <GLFW/glfw3.h> 
+#include <GL/glew.h> 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
 
 #define MESH_FILE "Meshes/sphere.obj"
 #define VERTEX_RED_SHADER_FILE "Shaders/vsRed.glsl"
 #define VERTEX_PURPLE_SHADER_FILE "Shaders/vsPurple.glsl"
 #define FRAGMENT_RED_SHADER_FILE "Shaders/fsRed.glsl"
 #define FRAGMENT_PURPLE_SHADER_FILE "Shaders/fsPurple.glsl"
+
+Octree* _octree; //An octree with all af the balls
 
 int main () {
 /*--------------------------------START OPENGL--------------------------------*/
@@ -26,6 +29,9 @@ int main () {
 /*------------------------------CREATE GEOMETRY-------------------------------*/
 	
 	GLObject* sphere = new GLObject(MESH_FILE, 1);
+
+/*------------------------------ CREATE GLText -------------------------------*/
+	GLText* text = new GLText();
 	
 /*-------------------------------CREATE PROGRAM-------------------------------*/
 	
@@ -33,8 +39,9 @@ int main () {
 	GLProgram* programRed = new GLProgram();
 
 	// Add shaders
+	//programPurple->addShader(new GLShader(FRAGMENT_PURPLE_SHADER_FILE,GL_FRAGMENT_SHADER ) );
 	programPurple->addShader(new GLShader(FRAGMENT_PURPLE_SHADER_FILE,GL_FRAGMENT_SHADER ) );
-	programPurple->addShader(new GLShader(VERTEX_PURPLE_SHADER_FILE,GL_VERTEX_SHADER));
+	programPurple->addShader(new GLShader(VERTEX_RED_SHADER_FILE,GL_VERTEX_SHADER));
 
 	// create program
 	programPurple->createProgram();
@@ -51,13 +58,18 @@ int main () {
 	programRed->addVariable("model");
 	programRed->addVariable("view");
 	programRed->addVariable("proj");
+
+/*-------------------------------Create Octree ------------------------------*/
+
+	_octree = new Octree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
+						 vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 1);
 	
 /*-------------------------------CREATE CAMERA--------------------------------*/
-	int limit = 20;
+	int limit = 3;
 	GLCamera camara((float)g_gl_width / (float)g_gl_height);
 	camara.look_at(vector3((float)30.0, (float)10.0, (float)30.0), vector3(5.0,5.0,5.0), vector3(5.0,5.0,5.0));
 	//camara.setPosition(vector3((float)15.0, (float)5.0, (float)15.0));
-	
+
 /*---------------------------SET RENDERING DEFAULTS---------------------------*/
 	
 	glUseProgram (programPurple->getID());
@@ -67,6 +79,8 @@ int main () {
 	glUseProgram (programRed->getID());
 	glUniformMatrix4fv (programRed->getVariable("view") , 1, GL_FALSE, camara.getView().m);
 	glUniformMatrix4fv (programRed->getVariable("proj") , 1, GL_FALSE, camara.getProj().m);
+
+
 	// Create scene
 	GLScene* scene = new GLScene();
 
@@ -77,7 +91,11 @@ int main () {
 	for(int x = 0; x < limit; x += 2)
 		for(int y = 0; y < limit; y += 2)
 			for(int z = 0; z < limit; z += 2)
-				scene->addMesh(new GLMesh(sphere, vector3(x,y,z), ++i%2? programRed : programPurple));
+			{
+				GLMesh* mesh = new GLMesh(sphere, vector3(x,y,z), ++i%2? programRed : programPurple);
+				scene->addMesh(mesh);
+				_octree->add(mesh);
+			}
 
 	scene->printProperties();
 	
@@ -87,10 +105,14 @@ int main () {
 	glCullFace (GL_BACK);				// cull back face
 	glFrontFace (GL_CCW);				// set counter-clock-wise vertex order to mean the front
 	glClearColor (0.2, 0.2, 0.2, 1.0);	// grey background to help spot mistakes
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 	glViewport (0, 0, g_gl_width, g_gl_height);
 	
 	vector3 position = vector3(limit,limit,limit);
 	bool insertar = false;
+
+
 
 /*-------------------------------RENDERING LOOP-------------------------------*/
 	while (!glfwWindowShouldClose (g_window)) 
@@ -108,6 +130,15 @@ int main () {
 		// Render Meshes
 		scene->render();
 
+		float sx = 2.0 / g_gl_width;
+		float sy = 2.0 / g_gl_height;
+
+
+		// Render text
+		//text->render("This is sample text", 25.0f, 25.0f, 1.0f, vector3(0.5, 0.8f, 0.2f));
+		//text.render("The Quick Brown Fox Jumps Over The Lazy Dog",
+        //      -1 + 8 * sx,   1 - 50 * sy,    sx, sy);
+
 		// update other events like input handling 
 		glfwPollEvents ();
 		
@@ -115,10 +146,13 @@ int main () {
 		bool cam_moved = false;
 		vector3 move (0.0, 0.0, 0.0);
 
+		scene->moveAll(vector3(0.0, - elapsed_seconds, 0), _octree);
+
 		if (insertar && glfwGetKey (g_window, GLFW_KEY_O) == GLFW_RELEASE) 
 		{
 			position += vector3(1.0,1.0,1.0);
-			scene->addMesh(new GLMesh(sphere,position, programRed));
+			//scene->moveAll(vector3(0.0, - 0.25, 0));
+			//scene->addMesh(new GLMesh(sphere,position, programRed));
 			insertar = false;
 		}
 		if (glfwGetKey (g_window, GLFW_KEY_O) == GLFW_PRESS) 

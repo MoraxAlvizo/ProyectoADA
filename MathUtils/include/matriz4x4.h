@@ -42,3 +42,7 @@ struct matriz4x4 {
 
 matriz4x4 zero_mat4();
 matriz4x4 identity_mat4();
+matriz4x4 ortho(float left,
+		float right,
+		float  bottom,
+		float  top);

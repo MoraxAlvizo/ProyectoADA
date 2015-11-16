@@ -52,6 +52,8 @@ public:
 	vector3 operator/ (float rhs);
 	// because users expect this too
 	vector3& operator= (const vector3& rhs);
+
+	float magnitudeSquared();
 	// Funtion print
 	void print();
 

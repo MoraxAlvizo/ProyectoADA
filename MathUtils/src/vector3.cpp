@@ -149,3 +149,7 @@ vector3 heading_to_direction(float degrees) {
 	float rad = degrees * ONE_DEG_IN_RAD;
 	return vector3(-sinf(rad), 0.0f, -cosf(rad));
 }
+
+float vector3::magnitudeSquared() {
+	return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+}
