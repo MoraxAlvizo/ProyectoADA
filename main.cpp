@@ -64,7 +64,7 @@ int main() {
 		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 1);
 
 	/*-------------------------------CREATE CAMERA--------------------------------*/
-	int limit = 10;
+	int limit = 4;
 	GLCamera camara((float)g_gl_width / (float)g_gl_height);
 	camara.look_at(vector3((float)30.0, (float)10.0, (float)30.0), vector3(5.0, 5.0, 5.0), vector3(5.0, 5.0, 5.0));
 	//camara.setPosition(vector3((float)15.0, (float)5.0, (float)15.0));

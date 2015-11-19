@@ -1,5 +1,11 @@
 #include "GLMesh.h"
+#include <cstdlib>
 
+float randomVelocity(){
+	float velocity = 0;
+	velocity = (float)rand() / ((float)RAND_MAX + 1);
+	return velocity;
+}
 
 GLMesh::GLMesh(GLObject* object, vector3 position, GLProgram* program)
 {
@@ -7,8 +13,8 @@ GLMesh::GLMesh(GLObject* object, vector3 position, GLProgram* program)
 	this->position = position;
 	this->object = object;
 	this->program = program;
-	this->r = 0.1;
-	this->v = vector3(0, 0.3, 0.1);
+	this->r = 1.0;
+	this->v = vector3(randomVelocity(),randomVelocity(),randomVelocity());
 }
 
 
