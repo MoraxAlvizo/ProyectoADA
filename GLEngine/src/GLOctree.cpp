@@ -60,6 +60,7 @@ bool testBallBallCollision(Ball* b1, Ball* b2) {
 void handleBallBallCollisions(vector<Ball*> &balls, Octree* octree) {
 	vector<BallPair> bps;
 	potentialBallBallCollisions(bps, balls, octree);
+
 	for (unsigned int i = 0; i < bps.size(); i++) {
 		BallPair bp = bps[i];
 
@@ -99,14 +100,14 @@ bool testBallWallCollision(Ball* ball, Wall wall) {
 	vector3 dir = wallDirection(wall);
 	//Check whether the ball is far enough in the "dir" direction, and whether
 	//it is moving toward the wall
-	cout << endl;
-	cout << dot(ball->getPositionV(), dir) << endl;
-	cout << ball->getRadius() << endl;
-	cout << (BOX_SIZE / 2) << endl;
-	cout << dot(ball->getVelocity(), dir) << endl;
-	cout << dir.v[0] << ":" << dir.v[1] << ":" << dir.v[2] << endl;
-	cout << ball->getPositionV().v[0] << ":" << ball->getPositionV().v[1] << ":" << ball->getPositionV().v[2] << endl;
-	cout << ball->getVelocity().v[0] << ":" << ball->getVelocity().v[1] << ":" << ball->getVelocity().v[2] << endl;
+	//cout << endl;
+	//cout << dot(ball->getPositionV(), dir) << endl;
+	//cout << ball->getRadius() << endl;
+	//cout << (BOX_SIZE / 2) << endl;
+	//cout << dot(ball->getVelocity(), dir) << endl;
+	//cout << dir.v[0] << ":" << dir.v[1] << ":" << dir.v[2] << endl;
+	//cout << ball->getPositionV().v[0] << ":" << ball->getPositionV().v[1] << ":" << ball->getPositionV().v[2] << endl;
+	//cout << ball->getVelocity().v[0] << ":" << ball->getVelocity().v[1] << ":" << ball->getVelocity().v[2] << endl;
 	return dot(ball->getPositionV(), dir) + ball->getRadius() > BOX_SIZE / 2 &&
 		dot(ball->getVelocity(), dir) > 0;
 
@@ -124,7 +125,7 @@ void handleBallWallCollisions(vector<Ball*> &balls, Octree* octree) {
 		if (testBallWallCollision(b, w)) {
 			//Make the ball reflect off of the wall
 			vector3 dir = (wallDirection(w)).normalise();
-			b->setVelocity(b->getVelocity() - ((dir * 2) * dot(b->getVelocity(), dir))); // Trucha con esto
+			b->setVelocity(b->getVelocity() - ((dir * 2) * dot(b->getVelocity(), dir))); 
 		}
 	}
 }

@@ -6,9 +6,9 @@
 using namespace std;
 
 const int MAX_OCTREE_DEPTH = 6;
-const int MIN_BALLS_PER_OCTREE = 3;
-const int MAX_BALLS_PER_OCTREE = 6;
-const float BOX_SIZE = 10.0f; //The length of one side of the box
+const int MIN_BALLS_PER_OCTREE = 1;
+const int MAX_BALLS_PER_OCTREE = 4;
+const float BOX_SIZE = 30.0f; //The length of one side of the box
 
 //Stores information regarding a ball
 typedef GLMesh Ball;
@@ -48,8 +48,9 @@ private:
 	//The depth of this in the tree
 	int depth;
 	//The number of balls in this, including those stored in its children
+public:
 	int numBalls;
-
+private:
 	//Adds a ball to or removes one from the children of this
 	void fileBall(Ball* ball, vector3 pos, bool addBall) {
 		//Figure out in which child(ren) the ball belongs
@@ -86,9 +87,11 @@ private:
 					//Add or remove the ball
 					if (addBall) {
 						children[x][y][z]->add(ball);
+						return;
 					}
 					else {
 						children[x][y][z]->remove(ball, pos);
+						return;
 					}
 				}
 			}
@@ -181,6 +184,7 @@ private:
 			for (int y = 0; y < 2; y++) {
 				for (int z = 0; z < 2; z++) {
 					delete children[x][y][z];
+					children[x][y][z] = NULL;
 				}
 			}
 		}
@@ -259,6 +263,17 @@ public:
 		depth = d;
 		numBalls = 0;
 		hasChildren = false;
+
+		for (int i = 0; i < 2; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				for (int k = 0; k < 2; k++)
+				{
+					children[i][j][k] = NULL;
+				}
+			}
+		}
 	}
 
 	//Destructor
@@ -335,6 +350,32 @@ public:
 		potentialBallWallCollisions(collisions, WALL_TOP, 'y', 1);
 		potentialBallWallCollisions(collisions, WALL_FAR, 'z', 0);
 		potentialBallWallCollisions(collisions, WALL_NEAR, 'z', 1);
+	}
+
+	void printCHildren(int tab, Octree* raiz)
+	{
+		
+		if (raiz == NULL)
+		{
+			return;
+		}
+		for (int i = 0; i < tab; i++)
+		{
+			printf(" ");
+		}
+		printf("%i\n", raiz->numBalls);
+		if (hasChildren)
+			for (int i = 0; i < 2; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					for (int k = 0; k < 2; k++)
+					{
+						printCHildren(tab + 2, raiz->children[i][j][k]);
+					}
+				}
+			}
+
 	}
 };
 

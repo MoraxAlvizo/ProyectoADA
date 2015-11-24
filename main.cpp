@@ -64,7 +64,7 @@ int main() {
 		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 1);
 
 	/*-------------------------------CREATE CAMERA--------------------------------*/
-	int limit = 4;
+	int limit = 3;
 	GLCamera camara((float)g_gl_width / (float)g_gl_height);
 	camara.look_at(vector3((float)30.0, (float)10.0, (float)30.0), vector3(5.0, 5.0, 5.0), vector3(5.0, 5.0, 5.0));
 	//camara.setPosition(vector3((float)15.0, (float)5.0, (float)15.0));
@@ -94,6 +94,7 @@ int main() {
 		GLMesh* mesh = new GLMesh(sphere, vector3(x, y, z), ++i % 2 ? programRed : programPurple);
 		scene->addMesh(mesh);
 		_octree->add(mesh);
+
 	}
 
 	scene->printProperties();
@@ -144,14 +145,20 @@ int main() {
 		// control keys
 		bool cam_moved = false;
 		vector3 move(0.0, 0.0, 0.0);
-
+		
 		scene->moveAll(vector3(0.0, elapsed_seconds, 0), _octree);
 
 		if (insertar && glfwGetKey(g_window, GLFW_KEY_O) == GLFW_RELEASE)
 		{
-			position += vector3(1.0, 1.0, 1.0);
+			//position += vector3(1.0, 1.0, 1.0);
 			//scene->moveAll(vector3(0.0, - 0.25, 0));
-			//scene->addMesh(new GLMesh(sphere,position, programRed));
+			for (int i = 0; i < 20; i++)
+			{
+				GLMesh * mesh = new GLMesh(sphere, vector3(0.0, 0.0, 0.0),i%2? programRed:programPurple);
+				scene->addMesh(mesh);
+				_octree->add(mesh);
+			}
+			
 			insertar = false;
 		}
 		if (glfwGetKey(g_window, GLFW_KEY_O) == GLFW_PRESS)
