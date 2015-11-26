@@ -5,9 +5,9 @@
 #include <GLMesh.h>
 using namespace std;
 
-const int MAX_OCTREE_DEPTH = 6;
+const int MAX_OCTREE_DEPTH = 15;
 const int MIN_BALLS_PER_OCTREE = 1;
-const int MAX_BALLS_PER_OCTREE = 4;
+const int MAX_BALLS_PER_OCTREE = 2;
 const float BOX_SIZE = 30.0f; //The length of one side of the box
 
 //Stores information regarding a ball
@@ -363,7 +363,8 @@ public:
 		{
 			printf(" ");
 		}
-		printf("%i\n", raiz->numBalls);
+		
+		printf("%i, Esquina1: [%f][%f][%f], Esquina2: [%f][%f][%f]\n", raiz->numBalls, raiz->corner1.v[0], raiz->corner1.v[1], raiz->corner1.v[2], raiz->corner2.v[0], raiz->corner2.v[1], raiz->corner2.v[2]);
 		if (hasChildren)
 			for (int i = 0; i < 2; i++)
 			{

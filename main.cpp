@@ -96,7 +96,7 @@ int main() {
 		_octree->add(mesh);
 
 	}
-
+	_octree->printCHildren(0, _octree);
 	scene->printProperties();
 
 	glEnable(GL_DEPTH_TEST);			// enable depth-testing
@@ -147,7 +147,7 @@ int main() {
 		vector3 move(0.0, 0.0, 0.0);
 		
 		scene->moveAll(vector3(0.0, elapsed_seconds, 0), _octree);
-
+		_octree->printCHildren(0, _octree);
 		if (insertar && glfwGetKey(g_window, GLFW_KEY_O) == GLFW_RELEASE)
 		{
 			//position += vector3(1.0, 1.0, 1.0);
