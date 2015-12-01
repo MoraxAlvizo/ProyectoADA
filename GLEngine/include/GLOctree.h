@@ -7,7 +7,7 @@ using namespace std;
 
 const int MAX_OCTREE_DEPTH = 15;
 const int MIN_BALLS_PER_OCTREE = 1;
-const int MAX_BALLS_PER_OCTREE = 2;
+const int MAX_BALLS_PER_OCTREE = 5;
 const float BOX_SIZE = 30.0f; //The length of one side of the box
 
 //Stores information regarding a ball
@@ -87,11 +87,11 @@ private:
 					//Add or remove the ball
 					if (addBall) {
 						children[x][y][z]->add(ball);
-						return;
+						//return;
 					}
 					else {
 						children[x][y][z]->remove(ball, pos);
-						return;
+						//return;
 					}
 				}
 			}
@@ -263,7 +263,7 @@ public:
 		depth = d;
 		numBalls = 0;
 		hasChildren = false;
-
+		
 		for (int i = 0; i < 2; i++)
 		{
 			for (int j = 0; j < 2; j++)
@@ -324,11 +324,9 @@ public:
 		}
 		else {
 			//Add all pairs (ball1, ball2) from balls
-			for (set<Ball*>::iterator it = balls.begin(); it != balls.end();
-				it++) {
+			for (set<Ball*>::iterator it = balls.begin(); it != balls.end();it++) {
 				Ball* ball1 = *it;
-				for (set<Ball*>::iterator it2 = balls.begin();
-					it2 != balls.end(); it2++) {
+				for (set<Ball*>::iterator it2 = balls.begin();it2 != balls.end(); it2++) {
 					Ball* ball2 = *it2;
 					//This test makes sure that we only add each pair once
 					if (ball1 < ball2) {
@@ -359,12 +357,15 @@ public:
 		{
 			return;
 		}
-		for (int i = 0; i < tab; i++)
-		{
-			printf(" ");
-		}
+		for (int i = 0; i < tab; i++)printf(" ");
+
 		
-		printf("%i, Esquina1: [%f][%f][%f], Esquina2: [%f][%f][%f]\n", raiz->numBalls, raiz->corner1.v[0], raiz->corner1.v[1], raiz->corner1.v[2], raiz->corner2.v[0], raiz->corner2.v[1], raiz->corner2.v[2]);
+		printf("%i, E1: [%.2f][%.2f][%.2f], E2: [%.2f][%.2f][%.2f]\n", raiz->numBalls, raiz->corner1.v[0], raiz->corner1.v[1], raiz->corner1.v[2], raiz->corner2.v[0], raiz->corner2.v[1], raiz->corner2.v[2]);
+		for (auto ball:raiz->balls)
+		{
+			for (int i = 0; i < tab; i++)printf(" ");
+			printf("PosBall: [%.2f][%.2f][%.2f]\n", ((Ball*)ball)->getPositionV(), ball->getPositionV().v[1], ball->getPositionV().v[2]);
+		}
 		if (hasChildren)
 			for (int i = 0; i < 2; i++)
 			{

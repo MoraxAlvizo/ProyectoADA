@@ -19,6 +19,11 @@
 #define FRAGMENT_PURPLE_SHADER_FILE "Shaders/fsPurple.glsl"
 
 Octree* _octree; //An octree with all af the balls
+float randomPos(){
+	float pos = 0;
+	pos = (rand() % (int)BOX_SIZE) / 2  ;
+	return pos;
+}
 
 int main() {
 	/*--------------------------------START OPENGL--------------------------------*/
@@ -96,7 +101,6 @@ int main() {
 		_octree->add(mesh);
 
 	}
-	_octree->printCHildren(0, _octree);
 	scene->printProperties();
 
 	glEnable(GL_DEPTH_TEST);			// enable depth-testing
@@ -147,18 +151,18 @@ int main() {
 		vector3 move(0.0, 0.0, 0.0);
 		
 		scene->moveAll(vector3(0.0, elapsed_seconds, 0), _octree);
-		_octree->printCHildren(0, _octree);
+		//_octree->printCHildren(0, _octree);
 		if (insertar && glfwGetKey(g_window, GLFW_KEY_O) == GLFW_RELEASE)
 		{
-			//position += vector3(1.0, 1.0, 1.0);
-			//scene->moveAll(vector3(0.0, - 0.25, 0));
 			for (int i = 0; i < 20; i++)
 			{
-				GLMesh * mesh = new GLMesh(sphere, vector3(0.0, 0.0, 0.0),i%2? programRed:programPurple);
+				GLMesh * mesh = new GLMesh(sphere, vector3(randomPos(), randomPos(), randomPos()), i % 2 ? programRed : programPurple);
 				scene->addMesh(mesh);
 				_octree->add(mesh);
+
+				
 			}
-			
+			printf("Cantidad de pelotas: %u\n", scene->getNumMeshes());
 			insertar = false;
 		}
 		if (glfwGetKey(g_window, GLFW_KEY_O) == GLFW_PRESS)

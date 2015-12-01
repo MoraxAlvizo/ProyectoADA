@@ -87,7 +87,9 @@ bool start_gl () {
 	const GLFWvidmode* vmode = glfwGetVideoMode (mon);
 	g_window = glfwCreateWindow (
 		vmode->width, vmode->height, "Extended GL Init", mon, NULL
-	);*/
+	);
+	g_gl_width = vmode->width;
+	g_gl_height = vmode->height;*/
 	
 	g_window = glfwCreateWindow (
 		g_gl_width, g_gl_height, "Extended Init.", NULL, NULL
