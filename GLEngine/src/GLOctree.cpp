@@ -372,9 +372,9 @@ void handleBallBallCollisions(vector<Ball*> &balls, GLOctree* octree) {
 		Ball* b2 = bp.ball2;
 		if (testBallBallCollision(b1, b2)) {
 			//Make the balls reflect off of each other
-			vector3 displacement = (b1->getPositionV() - b2->getPositionV()).normalise();
-			b1->setVelocity(b1->getVelocity() - ((displacement * 2) * dot(b1->getVelocity(), displacement)));
-			b2->setVelocity(b2->getVelocity() - ((displacement * 2) * dot(b2->getVelocity(), displacement)));
+			vector3 displacement = (b1->getPositionV() - b2->getPositionV()).normalise() ;
+			b1->setVelocity(b1->getVelocity() - ((displacement * 2) * dot(b1->getVelocity(), displacement)) );
+			b2->setVelocity(b2->getVelocity() - ((displacement * 2) * dot(b2->getVelocity(), displacement)) );
 		}
 	}
 }

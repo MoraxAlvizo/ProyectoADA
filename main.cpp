@@ -132,15 +132,6 @@ int main() {
 		// Render Meshes
 		scene->render();
 
-		float sx = 2.0 / g_gl_width;
-		float sy = 2.0 / g_gl_height;
-
-
-		// Render text
-		//text->render("This is sample text", 25.0f, 25.0f, 1.0f, vector3(0.5, 0.8f, 0.2f));
-		//text.render("The Quick Brown Fox Jumps Over The Lazy Dog",
-		//      -1 + 8 * sx,   1 - 50 * sy,    sx, sy);
-
 		// update other events like input handling 
 		glfwPollEvents();
 
@@ -157,8 +148,6 @@ int main() {
 				GLMesh * mesh = new GLMesh(sphere, vector3(randomPos(), randomPos(), randomPos()), i % 2 ? programRed : programPurple);
 				scene->addMesh(mesh);
 				octree->add(mesh);
-
-				
 			}
 			printf("Cantidad de pelotas: %u\n", scene->getNumMeshes());
 			insertar = false;
