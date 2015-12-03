@@ -18,7 +18,7 @@
 #define FRAGMENT_RED_SHADER_FILE "Shaders/fsRed.glsl"
 #define FRAGMENT_PURPLE_SHADER_FILE "Shaders/fsPurple.glsl"
 
-Octree* _octree; //An octree with all af the balls
+
 float randomPos(){
 	float pos = 0;
 	pos = (rand() % (int)BOX_SIZE) / 2  ;
@@ -64,8 +64,8 @@ int main() {
 	programRed->addVariable("proj");
 
 	/*-------------------------------Create Octree ------------------------------*/
-
-	_octree = new Octree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
+	GLOctree* octree; //An octree with all af the balls
+	octree = new GLOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
 		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 1);
 
 	/*-------------------------------CREATE CAMERA--------------------------------*/
@@ -98,7 +98,7 @@ int main() {
 	{
 		GLMesh* mesh = new GLMesh(sphere, vector3(x, y, z), ++i % 2 ? programRed : programPurple);
 		scene->addMesh(mesh);
-		_octree->add(mesh);
+		octree->add(mesh);
 
 	}
 	scene->printProperties();
@@ -115,8 +115,6 @@ int main() {
 
 	vector3 position = vector3(limit, limit, limit);
 	bool insertar = false;
-
-
 
 	/*-------------------------------RENDERING LOOP-------------------------------*/
 	while (!glfwWindowShouldClose(g_window))
@@ -150,15 +148,15 @@ int main() {
 		bool cam_moved = false;
 		vector3 move(0.0, 0.0, 0.0);
 		
-		scene->moveAll(vector3(0.0, elapsed_seconds, 0), _octree);
-		//_octree->printCHildren(0, _octree);
+		scene->moveAll(vector3(0.0, elapsed_seconds, 0), octree);
+		//octree->printCHildren(0, octree);
 		if (insertar && glfwGetKey(g_window, GLFW_KEY_O) == GLFW_RELEASE)
 		{
 			for (int i = 0; i < 20; i++)
 			{
 				GLMesh * mesh = new GLMesh(sphere, vector3(randomPos(), randomPos(), randomPos()), i % 2 ? programRed : programPurple);
 				scene->addMesh(mesh);
-				_octree->add(mesh);
+				octree->add(mesh);
 
 				
 			}
