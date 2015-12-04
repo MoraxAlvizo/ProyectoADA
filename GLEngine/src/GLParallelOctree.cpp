@@ -57,6 +57,7 @@ void GLParallelOctree::createBoxes()
     for(int level = 1; level < depth; level++)
     {
         int numNodes = getPower8(level);
+		#pragma omp parallel for
         for(int node = offset; node < getPower8(level) + offset; node++)
         {
             int parent = getParent(node);
@@ -169,7 +170,10 @@ void GLParallelOctree::insertBall(Ball* ball,int node)
 				children |= (z)?Z:0;
 				children += (node << 3) +1; 
 				if(tree[children].balls != NULL)
+				{
+					#pragma omp critical
 					tree[children].balls->insert(ball);
+				}
 				else
 					insertBall(ball, children);
 			}
@@ -180,6 +184,7 @@ void GLParallelOctree::insertBall(Ball* ball,int node)
 /** InsertBalls*/
 void GLParallelOctree::insertBalls(vector<Ball*> &balls)
 {
+	#pragma omp parallel for
 	for(int i = 0; i <balls.size(); i++)
 	{
 		insertBall(balls[i],0);
@@ -194,23 +199,25 @@ void GLParallelOctree::Colissions()
 
 	WallCollisions() ;
 
+	#pragma omp parallel for
 	for(int i = startPos; i < total; i++)
 	{
 		for (set<Ball*>::iterator it = tree[i].balls->begin(); it != tree[i].balls->end();it++) {
 			Ball* ball1 = *it;
-			for (set<Ball*>::iterator it2 = tree[i].balls->begin();it2 != tree[i].balls->end(); it2++) {
+			for (set<Ball*>::iterator it2 = it/*tree[i].balls->begin()*/;it2 != tree[i].balls->end(); it2++) {
 				Ball* ball2 = *it2;
 				//This test makes sure that we only add each pair once
-				if (ball1 < ball2) 
+				if (ball1 < ball2 && testBallBallCollision(ball1, ball2)) 
 				{
-					if (testBallBallCollision(ball1, ball2)) 
+					//Make the balls reflect off of each other
+					#pragma omp critical
 					{
-						//Make the balls reflect off of each other
 						vector3 displacement = (ball1->getPositionV() - ball2->getPositionV()).normalise() ;
 						ball1->setVelocity(ball1->getVelocity() - ((displacement * 2) * dot(ball1->getVelocity(), displacement)) );
 						ball2->setVelocity(ball2->getVelocity() - ((displacement * 2) * dot(ball2->getVelocity(), displacement)) );
 					}
 				}
+				
 			}	
 		}
 		// Limpiar Caja
@@ -259,6 +266,7 @@ void GLParallelOctree::potentialBallWallCollisions(Wall w, char coord, int dir, 
 				if (testBallWallCollision(ball, w)) {
 					//Make the ball reflect off of the wall
 					vector3 dir = (wallDirection(w)).normalise();
+					#pragma omp critical
 					ball->setVelocity(ball->getVelocity() - ((dir * 2) * dot(ball->getVelocity(), dir))); 
 				}
 		}
@@ -266,12 +274,38 @@ void GLParallelOctree::potentialBallWallCollisions(Wall w, char coord, int dir, 
 }
 
 void GLParallelOctree::WallCollisions() {
-	potentialBallWallCollisions(WALL_LEFT, 'x', 0, 0);
-	potentialBallWallCollisions(WALL_RIGHT, 'x', 1,0);
-	potentialBallWallCollisions(WALL_BOTTOM, 'y', 0,0);
-	potentialBallWallCollisions(WALL_TOP, 'y', 1,0);
-	potentialBallWallCollisions(WALL_FAR, 'z', 0,0);
-	potentialBallWallCollisions(WALL_NEAR, 'z', 1,0);
+	#pragma omp parallel sections
+	{
+		#pragma omp section
+		{
+			potentialBallWallCollisions(WALL_LEFT, 'x', 0, 0);
+		}
+	
+		#pragma omp section
+		{
+			potentialBallWallCollisions(WALL_RIGHT, 'x', 1,0);
+		}
+	
+		#pragma omp section
+		{
+			potentialBallWallCollisions(WALL_BOTTOM, 'y', 0,0);
+		}
+	
+		#pragma omp section
+		{
+			potentialBallWallCollisions(WALL_TOP, 'y', 1,0);
+		}
+	
+		#pragma omp section
+		{
+			potentialBallWallCollisions(WALL_FAR, 'z', 0,0);
+		}
+	
+		#pragma omp section
+		{
+			potentialBallWallCollisions(WALL_NEAR, 'z', 1,0);
+		}
+	}
 }
 
 /** Clean tree */
