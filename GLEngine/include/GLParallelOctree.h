@@ -7,7 +7,7 @@
 #include <GLMesh.h>
 #include <GLOctree.h>
 #include <stack>
-
+#include <omp.h>
 
 #define MASK 0x7
 #define X 0x1
@@ -15,7 +15,7 @@
 #define Z 0x4
 
 #define DEPTH 3
-#define NUM_BALLS 500
+#define NUM_BALLS 250
 #define START_POS 9
 #define TOTAL_NODES 73
 

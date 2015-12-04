@@ -57,7 +57,7 @@ void GLParallelOctree::createBoxes()
     for(int level = 1; level < depth; level++)
     {
         int numNodes = getPower8(level);
-		#pragma omp parallel for
+		#pragma omp parallel for num_threads (4)
         for(int node = offset; node < getPower8(level) + offset; node++)
         {
             int parent = getParent(node);
@@ -133,7 +133,7 @@ void GLParallelOctree::printPOctree()
 
 void GLParallelOctree::insertBalls(vector<Ball*> &balls)
 {
-	#pragma omp parallel for
+	#pragma omp parallel for num_threads(4)
 	for(int i = 0; i < NUM_BALLS; i++)
 	{
 		stack<int> pila;
@@ -203,7 +203,7 @@ void GLParallelOctree::Colissions()
 
 	WallCollisions() ;
 
-	#pragma omp parallel for
+	#pragma omp parallel for num_threads (4)
 	for(int i = START_POS; i < TOTAL_NODES; i++)
 	{
 		for (set<Ball*>::iterator it = tree[i].balls->begin(); it != tree[i].balls->end();it++) {
