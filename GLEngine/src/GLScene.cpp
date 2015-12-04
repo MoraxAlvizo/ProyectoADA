@@ -35,14 +35,14 @@ void GLScene::moveAll(vector3 mov, GLOctree* octree)
 		//meshes[i]->setVelocity(mov);
 		meshes[i]->setPosition(newPos);
 
-		octree->ballMoved(meshes[i], oldPos);
+		//octree->ballMoved(meshes[i], oldPos);
 
 		/*if(newPos.v[1] > - 10)
 		meshes[i]->setPosition(newPos);*/
 	}
 
-	handleBallBallCollisions(meshes, octree);
-	handleBallWallCollisions(meshes, octree);
+	//handleBallBallCollisions(meshes, octree);
+	//handleBallWallCollisions(meshes, octree);
 }
 
 void GLScene::render()

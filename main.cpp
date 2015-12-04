@@ -6,6 +6,7 @@
 #include "GLMesh.h"
 #include "GLScene.h"
 #include "GLOctree.h"
+#include "GLParallelOctree.h"
 #include <GLFW/glfw3.h> 
 #include <GL/glew.h> 
 #include <stdio.h>
@@ -68,6 +69,12 @@ int main() {
 	octree = new GLOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
 		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 1);
 
+	/*-------------------------------Create Octree ------------------------------*/
+	GLParallelOctree* p_octree; //An octree with all af the balls
+	p_octree = new GLParallelOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
+		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 3);
+
+
 	/*-------------------------------CREATE CAMERA--------------------------------*/
 	int limit = 3;
 	GLCamera camara((float)g_gl_width / (float)g_gl_height);
@@ -101,6 +108,8 @@ int main() {
 		octree->add(mesh);
 
 	}
+	p_octree->insertBalls(scene->meshes);
+	p_octree->Colissions();
 	scene->printProperties();
 
 	glEnable(GL_DEPTH_TEST);			// enable depth-testing
@@ -140,6 +149,9 @@ int main() {
 		vector3 move(0.0, 0.0, 0.0);
 		
 		scene->moveAll(vector3(0.0, elapsed_seconds, 0), octree);
+
+		p_octree->insertBalls(scene->meshes);
+		p_octree->Colissions();
 		//octree->printCHildren(0, octree);
 		if (insertar && glfwGetKey(g_window, GLFW_KEY_O) == GLFW_RELEASE)
 		{

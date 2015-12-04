@@ -11,8 +11,10 @@ using namespace std;
 class GLScene
 {
 private:
-	vector<GLMesh*> meshes;
+	
 public:
+	vector<GLMesh*> meshes;
+
 	GLScene(void);
 	~GLScene(void);
 
