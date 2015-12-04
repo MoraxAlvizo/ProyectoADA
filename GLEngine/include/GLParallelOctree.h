@@ -6,6 +6,7 @@
 #include <set>
 #include <GLMesh.h>
 #include <GLOctree.h>
+#include <stack>
 
 
 #define MASK 0x7
@@ -13,8 +14,18 @@
 #define Y 0x2
 #define Z 0x4
 
+#define DEPTH 3
+#define NUM_BALLS 500
+#define START_POS 9
+#define TOTAL_NODES 73
+
 typedef GLMesh Ball;
+
 using namespace std;
+
+
+	//int startPos = getNumNodes(depth - 2);
+	//int total = startPos + getPower8(depth - 1);
 
 /**
 This parallel octree is diveded in four parts:
@@ -62,8 +73,7 @@ class GLParallelOctree
 
         /** Colissions */
         void Colissions();
-		void WallCollisions();
-		void potentialBallWallCollisions(Wall w, char coord, int dir, int node);
+		
 
         /** Clean tree */
         void cleanTree();
@@ -77,8 +87,9 @@ class GLParallelOctree
         vector3 corner1;
         vector3 corner2;
 
-		void insertBall(Ball* ball, int node);
-
+		void WallCollisions();
+		void potentialBallWallCollisions(Wall w, char coord, int dir, int node);
+		 
 };
 
 #endif // GLPARALLELOCTREE_H

@@ -131,63 +131,67 @@ void GLParallelOctree::printPOctree()
     }
 }
 
-void GLParallelOctree::insertBall(Ball* ball,int node)
-{
-	
-	for (int x = 0; x < 2; x++) {
-		if (x == 0) {
-			if (ball->getPositionV().v[0] - ball->getRadius() > tree[node].centro.v[0]) {
-				continue;
-			}
-		}
-		else if (ball->getPositionV().v[0] + ball->getRadius() < tree[node].centro.v[0]) {
-			continue;
-		}
-
-		for (int y = 0; y < 2; y++) {
-			if (y == 0) {
-				if (ball->getPositionV().v[1] - ball->getRadius() > tree[node].centro.v[1]) {
-					continue;
-				}
-			}
-			else if (ball->getPositionV().v[1] + ball->getRadius() < tree[node].centro.v[1]) {
-				continue;
-			}
-
-			for (int z = 0; z < 2; z++) {
-				if (z == 0) {
-					if (ball->getPositionV().v[2] - ball->getRadius() > tree[node].centro.v[2]) {
-						continue;
-					}
-				}
-				else if (ball->getPositionV().v[2] + ball->getRadius() < tree[node].centro.v[2]) {
-					continue;
-				}
-				
-				int children = 0; 
-				children |= (x)?X:0;
-				children |= (y)?Y:0;
-				children |= (z)?Z:0;
-				children += (node << 3) +1; 
-				if(tree[children].balls != NULL)
-				{
-					#pragma omp critical
-					tree[children].balls->insert(ball);
-				}
-				else
-					insertBall(ball, children);
-			}
-		}
-	}
-}
-
-/** InsertBalls*/
 void GLParallelOctree::insertBalls(vector<Ball*> &balls)
 {
 	#pragma omp parallel for
-	for(int i = 0; i <balls.size(); i++)
+	for(int i = 0; i < NUM_BALLS; i++)
 	{
-		insertBall(balls[i],0);
+		stack<int> pila;
+		pila.push(0);
+		while(!pila.empty())
+		{
+			Ball* ball = balls[i];
+			int node = pila.top();
+			pila.pop();
+			for (int x = 0; x < 2; x++) {
+				if (x == 0) {
+					if (ball->getPositionV().v[0] - ball->getRadius() > tree[node].centro.v[0]) {
+						continue;
+					}
+				}
+				else if (ball->getPositionV().v[0] + ball->getRadius() < tree[node].centro.v[0]) {
+					continue;
+				}
+
+				for (int y = 0; y < 2; y++) {
+					if (y == 0) {
+						if (ball->getPositionV().v[1] - ball->getRadius() > tree[node].centro.v[1]) {
+							continue;
+						}
+					}
+					else if (ball->getPositionV().v[1] + ball->getRadius() < tree[node].centro.v[1]) {
+						continue;
+					}
+
+					for (int z = 0; z < 2; z++) {
+						if (z == 0) {
+							if (ball->getPositionV().v[2] - ball->getRadius() > tree[node].centro.v[2]) {
+								continue;
+							}
+						}
+						else if (ball->getPositionV().v[2] + ball->getRadius() < tree[node].centro.v[2]) {
+							continue;
+						}
+				
+						int children = 0; 
+						children |= (x)?X:0;
+						children |= (y)?Y:0;
+						children |= (z)?Z:0;
+						children += (node << 3) +1; 
+						if(tree[children].balls != NULL)
+						{
+							#pragma omp critical
+							tree[children].balls->insert(ball);
+						}
+						else
+						{
+							pila.push(children);
+						}
+					}
+				}
+			}
+		}
+
 	}
 }
 
@@ -200,7 +204,7 @@ void GLParallelOctree::Colissions()
 	WallCollisions() ;
 
 	#pragma omp parallel for
-	for(int i = startPos; i < total; i++)
+	for(int i = START_POS; i < TOTAL_NODES; i++)
 	{
 		for (set<Ball*>::iterator it = tree[i].balls->begin(); it != tree[i].balls->end();it++) {
 			Ball* ball1 = *it;

@@ -64,6 +64,7 @@ int main() {
 	programRed->addVariable("view");
 	programRed->addVariable("proj");
 
+
 	/*-------------------------------Create Octree ------------------------------*/
 	GLOctree* octree; //An octree with all af the balls
 	octree = new GLOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
@@ -99,7 +100,7 @@ int main() {
 	vector3 sphere_pos = vector3(0.0, 0.0, 0.0);
 	int i = 0;
 	//Create objects
-	for (int x = 0; x < limit; x += 2)
+	/*for (int x = 0; x < limit; x += 2)
 	for (int y = 0; y < limit; y += 2)
 	for (int z = 0; z < limit; z += 2)
 	{
@@ -107,7 +108,17 @@ int main() {
 		scene->addMesh(mesh);
 		octree->add(mesh);
 
+	}*/
+
+	for (int z = 0; z < NUM_BALLS; z ++)
+	{
+		GLMesh* mesh = new GLMesh(sphere, vector3(randomPos(), randomPos(), randomPos()), 
+									++i % 2 ? programRed : programPurple);
+		scene->addMesh(mesh);
+		octree->add(mesh);
+
 	}
+
 	p_octree->insertBalls(scene->meshes);
 	p_octree->Colissions();
 	scene->printProperties();
@@ -148,7 +159,7 @@ int main() {
 		bool cam_moved = false;
 		vector3 move(0.0, 0.0, 0.0);
 		
-		scene->moveAll(vector3(0.0, elapsed_seconds, 0), octree);
+		scene->moveAll( elapsed_seconds, octree);
 
 		p_octree->insertBalls(scene->meshes);
 		p_octree->Colissions();

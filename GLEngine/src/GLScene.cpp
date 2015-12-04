@@ -26,12 +26,12 @@ octree->ballMoved(ball, oldPos);
 }
 }*/
 
-void GLScene::moveAll(vector3 mov, GLOctree* octree)
+void GLScene::moveAll(float dt, GLOctree* octree)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-		vector3 oldPos = meshes[i]->getPositionV();
-		vector3 newPos = meshes[i]->getPositionV() - mov + meshes[i]->getVelocity();
+		vector3 oldPos = meshes[i]->getPositionV(); 
+		vector3 newPos = meshes[i]->getPositionV() + (meshes[i]->getVelocity() * dt);
 		//meshes[i]->setVelocity(mov);
 		meshes[i]->setPosition(newPos);
 
