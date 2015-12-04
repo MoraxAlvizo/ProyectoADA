@@ -23,10 +23,6 @@ typedef GLMesh Ball;
 
 using namespace std;
 
-
-	//int startPos = getNumNodes(depth - 2);
-	//int total = startPos + getPower8(depth - 1);
-
 /**
 This parallel octree is diveded in four parts:
 

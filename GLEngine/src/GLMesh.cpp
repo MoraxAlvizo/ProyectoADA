@@ -4,7 +4,7 @@
 float randomVelocity(){
 	float velocity = 0;
 	velocity = (float)rand() / ((float)RAND_MAX + 1);
-	return velocity;
+	return velocity * 2;
 }
 
 GLMesh::GLMesh(GLObject* object, vector3 position, GLProgram* program)
