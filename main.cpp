@@ -135,6 +135,8 @@ int main() {
 
 	vector3 position = vector3(limit, limit, limit);
 	bool insertar = false;
+	bool isParallel = true;
+	bool flagPBoton = false;
 
 	/*-------------------------------RENDERING LOOP-------------------------------*/
 	while (!glfwWindowShouldClose(g_window))
@@ -159,19 +161,36 @@ int main() {
 		bool cam_moved = false;
 		vector3 move(0.0, 0.0, 0.0);
 		
-		scene->moveAll( elapsed_seconds, octree);
+		scene->moveAll( elapsed_seconds, octree, isParallel);
 
-		p_octree->insertBalls(scene->meshes);
-		p_octree->Colissions();
-		//octree->printCHildren(0, octree);
+		if(isParallel)
+		{
+			p_octree->insertBalls(scene->meshes);
+			p_octree->Colissions();
+		}
+
+		if (flagPBoton && glfwGetKey(g_window, GLFW_KEY_P) == GLFW_RELEASE)
+		{
+			isParallel = !isParallel;
+			if(isParallel) 
+				printf("Octree paralelo\n");
+			else
+				printf("Octree serial\n");
+			flagPBoton = false;
+		}
+		if (glfwGetKey(g_window, GLFW_KEY_P) == GLFW_PRESS)
+		{
+			flagPBoton = true;
+		}
+
 		if (insertar && glfwGetKey(g_window, GLFW_KEY_O) == GLFW_RELEASE)
 		{
-			for (int i = 0; i < 20; i++)
+			/*for (int i = 0; i < 20; i++)
 			{
 				GLMesh * mesh = new GLMesh(sphere, vector3(randomPos(), randomPos(), randomPos()), i % 2 ? programRed : programPurple);
 				scene->addMesh(mesh);
 				octree->add(mesh);
-			}
+			}*/
 			printf("Cantidad de pelotas: %u\n", scene->getNumMeshes());
 			insertar = false;
 		}

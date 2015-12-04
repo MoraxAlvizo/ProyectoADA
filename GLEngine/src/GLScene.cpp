@@ -26,7 +26,7 @@ octree->ballMoved(ball, oldPos);
 }
 }*/
 
-void GLScene::moveAll(float dt, GLOctree* octree)
+void GLScene::moveAll(float dt, GLOctree* octree, bool isParallel)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
@@ -35,14 +35,18 @@ void GLScene::moveAll(float dt, GLOctree* octree)
 		//meshes[i]->setVelocity(mov);
 		meshes[i]->setPosition(newPos);
 
-		//octree->ballMoved(meshes[i], oldPos);
+		if(!isParallel)
+			octree->ballMoved(meshes[i], oldPos);
 
 		/*if(newPos.v[1] > - 10)
 		meshes[i]->setPosition(newPos);*/
 	}
-
-	//handleBallBallCollisions(meshes, octree);
-	//handleBallWallCollisions(meshes, octree);
+	if(!isParallel)
+	{
+		handleBallBallCollisions(meshes, octree);
+		handleBallWallCollisions(meshes, octree);
+	}
+	
 }
 
 void GLScene::render()
