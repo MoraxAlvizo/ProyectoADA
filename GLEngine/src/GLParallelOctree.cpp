@@ -20,7 +20,7 @@ GLParallelOctree::GLParallelOctree(vector3 corner1, vector3 corner2, int depth)
     this->corner1 = corner1;
     this->corner2 = corner2;
     this->depth  = depth;
-    this->tree = new Box[getNumNodes(depth)];
+    this->tree = new Box[getNumNodes(depth-1)];
 
 	createBoxes();
 }
@@ -34,14 +34,12 @@ int getPower8(int level)
 {
     int power = 1;
     for(int i = 0; i < level; i++)
-    {
         power *= 8;
-    }
 
     return power;
 }
 
-int getParent(int node)
+inline int getParent(int node)
 {
     return ((node-1) >> 3);
 }
@@ -145,9 +143,8 @@ void GLParallelOctree::insertBalls(vector<Ball*> &balls)
 			pila.pop();
 			for (int x = 0; x < 2; x++) {
 				if (x == 0) {
-					if (ball->getPositionV().v[0] - ball->getRadius() > tree[node].centro.v[0]) {
-						continue;
-					}
+					if (ball->getPositionV().v[0] - ball->getRadius() > tree[node].centro.v[0]) 
+						continue;	
 				}
 				else if (ball->getPositionV().v[0] + ball->getRadius() < tree[node].centro.v[0]) {
 					continue;
@@ -310,10 +307,4 @@ void GLParallelOctree::WallCollisions() {
 			potentialBallWallCollisions(WALL_NEAR, 'z', 1,0);
 		}
 	}
-}
-
-/** Clean tree */
-void GLParallelOctree::cleanTree()
-{
-
 }

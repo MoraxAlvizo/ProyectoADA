@@ -5,7 +5,7 @@
 #include <GLMesh.h>
 using namespace std;
 
-const int MAX_OCTREE_DEPTH = 4;
+const int MAX_OCTREE_DEPTH = 3;
 const int MIN_BALLS_PER_OCTREE = 2;
 const int MAX_BALLS_PER_OCTREE = 6;
 const float BOX_SIZE = 30.0f; //The length of one side of the box

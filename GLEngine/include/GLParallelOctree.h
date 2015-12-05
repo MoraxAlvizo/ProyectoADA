@@ -69,10 +69,6 @@ class GLParallelOctree
 
         /** Colissions */
         void Colissions();
-		
-
-        /** Clean tree */
-        void cleanTree();
 
 		/** Print Octree */
 		void printPOctree();

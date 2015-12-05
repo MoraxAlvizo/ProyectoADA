@@ -27,6 +27,7 @@ float randomPos(){
 }
 
 int main() {
+
 	/*--------------------------------START OPENGL--------------------------------*/
 	assert(restart_gl_log());
 	// start GL context and O/S window using the GLFW helper library
@@ -73,7 +74,7 @@ int main() {
 	/*----------------------------Create Parallel Octree --------------------------*/
 	GLParallelOctree* p_octree; //An octree with all af the balls
 	p_octree = new GLParallelOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
-		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 3);
+		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), DEPTH);
 
 
 	/*-------------------------------CREATE CAMERA--------------------------------*/
