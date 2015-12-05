@@ -65,12 +65,12 @@ int main() {
 	programRed->addVariable("proj");
 
 
-	/*-------------------------------Create Octree ------------------------------*/
+	/*-------------------------------Create Octree ----------__--------------------*/
 	GLOctree* octree; //An octree with all af the balls
 	octree = new GLOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
 		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 1);
 
-	/*-------------------------------Create Octree ------------------------------*/
+	/*----------------------------Create Parallel Octree --------------------------*/
 	GLParallelOctree* p_octree; //An octree with all af the balls
 	p_octree = new GLParallelOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
 		vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 3);
@@ -99,17 +99,8 @@ int main() {
 	// Initial position
 	vector3 sphere_pos = vector3(0.0, 0.0, 0.0);
 	int i = 0;
+
 	//Create objects
-	/*for (int x = 0; x < limit; x += 2)
-	for (int y = 0; y < limit; y += 2)
-	for (int z = 0; z < limit; z += 2)
-	{
-		GLMesh* mesh = new GLMesh(sphere, vector3(x, y, z), ++i % 2 ? programRed : programPurple);
-		scene->addMesh(mesh);
-		octree->add(mesh);
-
-	}*/
-
 	for (int z = 0; z < NUM_BALLS; z ++)
 	{
 		GLMesh* mesh = new GLMesh(sphere, vector3(randomPos(), randomPos(), randomPos()), 
@@ -175,7 +166,15 @@ int main() {
 			if(isParallel) 
 				printf("Octree paralelo\n");
 			else
+			{
 				printf("Octree serial\n");
+				delete octree;
+				octree = new GLOctree(vector3(-BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2),
+						vector3(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2), 1);
+				for (int z = 0; z < NUM_BALLS; z ++)
+					octree->add(scene->meshes[z]);
+			}
+
 			flagPBoton = false;
 		}
 		if (glfwGetKey(g_window, GLFW_KEY_P) == GLFW_PRESS)
