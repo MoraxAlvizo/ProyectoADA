@@ -5,3 +5,4 @@
 *.log
 Debug/
 resource.h
+OpenGL4Framework.aps

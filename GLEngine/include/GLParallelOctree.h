@@ -15,7 +15,7 @@
 #define Z 0x4
 
 #define DEPTH 3
-#define NUM_BALLS 250
+#define NUM_BALLS 500
 #define START_POS 9
 #define TOTAL_NODES 73
 

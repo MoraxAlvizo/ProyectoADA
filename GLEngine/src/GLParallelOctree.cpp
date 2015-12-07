@@ -59,7 +59,7 @@ void GLParallelOctree::createBoxes()
         for(int node = offset; node < getPower8(level) + offset; node++)
         {
             int parent = getParent(node);
-            int box = (node -1) & MASK;
+            int box = (node-1) & MASK;
             vector3 corner1Parent = tree[parent].corner1;
             vector3 corner2Parent = tree[parent].corner2;
             vector3 centroParent  = tree[parent].centro;
@@ -175,6 +175,7 @@ void GLParallelOctree::insertBalls(vector<Ball*> &balls)
 						children |= (y)?Y:0;
 						children |= (z)?Z:0;
 						children += (node << 3) +1; 
+						// SI es un nodo hoja insertar
 						if(tree[children].balls != NULL)
 						{
 							#pragma omp critical
@@ -205,7 +206,7 @@ void GLParallelOctree::Colissions()
 	{
 		for (set<Ball*>::iterator it = tree[i].balls->begin(); it != tree[i].balls->end();it++) {
 			Ball* ball1 = *it;
-			for (set<Ball*>::iterator it2 = it/*tree[i].balls->begin()*/;it2 != tree[i].balls->end(); it2++) {
+			for (set<Ball*>::iterator it2 = it ; it2 != tree[i].balls->end(); it2++) {
 				Ball* ball2 = *it2;
 				//This test makes sure that we only add each pair once
 				if (ball1 < ball2 && testBallBallCollision(ball1, ball2)) 

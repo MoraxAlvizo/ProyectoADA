@@ -16,30 +16,17 @@ void GLScene::addMesh(GLMesh* m)
 }
 
 //Moves all of the balls by their velocity times dt
-/*
-void moveBalls(vector<Ball*> &balls, Octree* octree, float dt) {
-for(unsigned int i = 0; i < balls.size(); i++) {
-Ball* ball = balls[i];
-Vec3f oldPos = ball->pos;
-ball->pos += ball->v * dt;
-octree->ballMoved(ball, oldPos);
-}
-}*/
-
 void GLScene::moveAll(float dt, GLOctree* octree, bool isParallel)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		vector3 oldPos = meshes[i]->getPositionV(); 
 		vector3 newPos = meshes[i]->getPositionV() + (meshes[i]->getVelocity() * dt);
-		//meshes[i]->setVelocity(mov);
 		meshes[i]->setPosition(newPos);
 
 		if(!isParallel)
 			octree->ballMoved(meshes[i], oldPos);
 
-		/*if(newPos.v[1] > - 10)
-		meshes[i]->setPosition(newPos);*/
 	}
 	if(!isParallel)
 	{
