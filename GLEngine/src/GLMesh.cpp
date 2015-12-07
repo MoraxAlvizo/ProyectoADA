@@ -1,6 +1,8 @@
 #include "GLMesh.h"
 #include <cstdlib>
 
+// Regresa un numero flotante entre 0 y 1. Se usa para colocar las velocidades 
+// de las pelotas
 float randomVelocity(){
 	float velocity = 0;
 	velocity = (float)rand() / ((float)RAND_MAX + 1);

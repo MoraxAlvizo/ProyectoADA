@@ -1,5 +1,8 @@
 #include "GLOctree.h"
-
+// Constructor del octree.
+//@param	c1	Esquina inferior.
+//@param	c2	Esquina superior.
+//@param	d 	La profundidad del nodo.
 GLOctree::GLOctree(vector3 c1, vector3 c2, int d) {
 	corner1 = c1;
 	corner2 = c2;
@@ -20,15 +23,23 @@ GLOctree::GLOctree(vector3 c1, vector3 c2, int d) {
 	}
 }
 
-//Destructor
+// Destructor
 GLOctree::~GLOctree() {
 	if (hasChildren) {
 		destroyChildren();
 	}
 }
 
+// fileBall() se encarga de agregar o eliminar pelotas al nodo adecuado en el octree (se
+// basa en la posicion de la pelota). Basicamente va a encontra a cual hijo esa pelota
+// en particular pertenece y la va a remover o agregar dependiendo si @addBall es
+// verdadera o falsa.
+//@param    ball		    Pelotas.
+//@param	pos				La posicion.
+//@param	addBall			verdadero para agregar la pelota.
+
 void GLOctree::fileBall(Ball* ball, vector3 pos, bool addBall) {
-	//Figure out in which child(ren) the ball belongs
+	// Determina en cual de sus hijos la pelota pertenece. 
 	for (int x = 0; x < 2; x++) {
 		if (x == 0) {
 			if (pos.v[0] - ball->getRadius() > center.v[0]) {
@@ -59,7 +70,7 @@ void GLOctree::fileBall(Ball* ball, vector3 pos, bool addBall) {
 					continue;
 				}
 
-				//Add or remove the ball
+				// Agrega o elimina la pelota.
 				if (addBall) {
 					children[x][y][z]->add(ball);
 				}
@@ -70,6 +81,10 @@ void GLOctree::fileBall(Ball* ball, vector3 pos, bool addBall) {
 		}
 	}
 }
+
+// Divide un cubo en particular a cubos mas pequenos. Es decir de un nodo crea a otros
+// nodos mas. Toma todos los hijos del nodo en cuestion y los agrega a los nodos hijo de
+// ese nodo.
 
 void GLOctree::haveChildren() {
 	for (int x = 0; x < 2; x++) {
@@ -107,7 +122,7 @@ void GLOctree::haveChildren() {
 					minZ = center.v[2];
 					maxZ = corner2.v[2];
 				}
-
+				//Crea un nuevo octree y la profundidad se incrementa en 1.
 				children[x][y][z] = new GLOctree(vector3(minX, minY, minZ),
 					vector3(maxX, maxY, maxZ),
 					depth + 1);
@@ -115,17 +130,23 @@ void GLOctree::haveChildren() {
 		}
 	}
 
-	//Remove all balls from "balls" and add them to the new children
+	// Itera sobre todas las bolas del antiguo nodo y las va colocando en los nuevos hijos con fileBall(). 
 	for (set<Ball*>::iterator it = balls.begin(); it != balls.end();
 		it++) {
 		Ball* ball = *it;
 		fileBall(ball, ball->getPositionV(), true);
 	}
+	// Elimina todas las bolas de ese nodo en particula ya que fueron colocadas en sus hijos.
 	balls.clear();
-
+	// Elimina todas las bolas de ese nodo en particula ya que fueron colocadas en sus hijos.
 	hasChildren = true;
 }
 
+// Se encarga de saber cuales bolas estan contenidas en un nodo particular incluyendo
+// sus hijos y los va a colocar en el set @bs. Si este nodo en cuestion
+// tiene hijos va a realizar una llamada recursiva hasta sus hijos que no tienen mas
+// hijos y va a colocar las bolas de cada nodo hijo en el set bs. Este
+// metodo se va a usar particularmente cuando queremos juntar los nodos.
 void GLOctree::collectBalls(set<Ball*> &bs) {
 	if (hasChildren) {
 		for (int x = 0; x < 2; x++) {
@@ -145,10 +166,11 @@ void GLOctree::collectBalls(set<Ball*> &bs) {
 	}
 }
 
+// Destruye todos los hijos del nodo y mueve todas las pelotas al set de pelotas.
 void GLOctree::destroyChildren() {
-	//Move all balls in descendants of this to the "balls" set
+	// Destruye todos los hijos del nodo y mueve todas las pelotas al set de pelotas.
 	collectBalls(balls);
-
+	// Una vez que tenemos guardadas las pelotas procedemos a eliminar sus hijos.
 	for (int x = 0; x < 2; x++) {
 		for (int y = 0; y < 2; y++) {
 			for (int z = 0; z < 2; z++) {
@@ -157,31 +179,43 @@ void GLOctree::destroyChildren() {
 			}
 		}
 	}
-
+	// Una vez que tenemos guardadas las pelotas procedemos a eliminar sus hijos.
 	hasChildren = false;
 }
 
+// Remueve la pelota del octree de la posicion particular @pos.
+//@param    ball	Las pelotas.
+//@param	pos		La posicion.
 void GLOctree::remove(Ball* ball, vector3 pos) {
+	// Decrementamos el numero de @numBalls.
 	numBalls--;
-
+	// Si el numero de @numBalls es menor al que establecimos en un principio que debe contener
+	// cada nodo procedemos a destruir ese nodo. 
 	if (hasChildren && numBalls < MIN_BALLS_PER_OCTREE) {
 		destroyChildren();
 	}
-
+	// De lo contrario si todavia es mayor al numero menor de pelotas por caja, procedemos a
+	// eliminar esa pelota con esa posicion del nodo. Por eso ponemos false en fileBall() 
 	if (hasChildren) {
 		fileBall(ball, pos, false);
 	}
+	// Si no tiene hijos entonces simplemente la borramos de este nodo en particular.
 	else {
 		balls.erase(ball);
 	}
 }
 
+// Este metodo es llamado individualmente para cada una de las paredes de nuestra caja.
+// Guarda las colisiones potenciales en un vector @cs. Recursivamente se manda a llamar
+// en la mitad correcta del hijo. Una vez que ya no hay mas hijos se guarda en el vector
+// @cs las colisiones potenciales entre la pared y la pelota.
+//@param [in,out]	cs	Vector en donde guardamos la posibles colisiones.
+//@param	w		  	Pared a procesar.
+//@param	coord	  	Las coordenadas.
+//@param	dir		  	The direccion.
 void GLOctree::potentialBallWallCollisions(vector<BallWallPair> &cs,
 	Wall w, char coord, int dir) {
 	if (hasChildren) {
-		//Recursively call potentialBallWallCollisions on the correct
-		//half of the children (e.g. if w is WALL_TOP, call it on
-		//children above centerY)
 		for (int dir2 = 0; dir2 < 2; dir2++) {
 			for (int dir3 = 0; dir3 < 2; dir3++) {
 				GLOctree *child = NULL;
@@ -202,7 +236,7 @@ void GLOctree::potentialBallWallCollisions(vector<BallWallPair> &cs,
 		}
 	}
 	else {
-		//Add (ball, w) for all balls in this
+		// Agrega (pelota, pared) 
 		for (set<Ball*>::iterator it = balls.begin(); it != balls.end();
 			it++) {
 			Ball* ball = *it;
@@ -214,13 +248,19 @@ void GLOctree::potentialBallWallCollisions(vector<BallWallPair> &cs,
 	}
 }
 
+// Agrega una pelota al nodo.
+//@param ball Las pelotas.
 void GLOctree::add(Ball* ball) {
 	numBalls++;
+	// Si el numero de @numBalls es mayor que el numero maximo permitido por MAX_BALLS_PER_OCTREE y
+	// la profundidad es menor que el permitido por MAX_OCTREE_DEPTH y ese nodo no tiene hijos
+	// entonces se divide el nodo con haveChildren() 
 	if (!hasChildren && depth < MAX_OCTREE_DEPTH &&
 		numBalls > MAX_BALLS_PER_OCTREE) {
 		haveChildren();
 	}
-
+	// Si el nodo tiene hijos simplemente se agrega la pelota y su posicion. De lo contrario
+	// solamente se agrega la pelota al set. 
 	if (hasChildren) {
 		fileBall(ball, ball->getPositionV(), true);
 	}
@@ -229,15 +269,25 @@ void GLOctree::add(Ball* ball) {
 	}
 }
 
+// Remueve la pelota del nodo.Hace una llamada al otro metodo remove.
+//@param	ball	La pelota a remover.
 void GLOctree::remove(Ball* ball) {
 	remove(ball, ball->getPositionV());
 }
 
+// Se manda a llamar cada vez que la pelota cambia de posicion.Esto sucede en
+// GLScene.cpp.Para hacer esto solamente eliminamos la pelota de la posicion antigua y
+// la agregamos en su nueva posicion.
+//@param	ball	Pelota para actualizar.
+//@param	oldPos			Posicion Antigua.
 void GLOctree::ballMoved(Ball* ball, vector3 oldPos) {
 	remove(ball, oldPos);
 	add(ball);
 }
-
+//Agrega colisiones potenciales entre pelotas al vector @collisions Si
+//el nodo tiene hijos entonces se navega a sus nodos hijos y se manda a llamar
+//recursivamente la funcion hasta que no tenga mas hijos y en ese caso iteramos
+//sobre el set de pelotas para agregarlas al vector de @collisions.
 void GLOctree::potentialBallBallCollisions(vector<BallPair> &collisions) {
 	if (hasChildren) {
 		for (int x = 0; x < 2; x++) {
@@ -250,12 +300,12 @@ void GLOctree::potentialBallBallCollisions(vector<BallPair> &collisions) {
 		}
 	}
 	else {
-		//Add all pairs (ball1, ball2) from balls
+		// Agregamos todos los pares de pelotas. 
 		for (set<Ball*>::iterator it = balls.begin(); it != balls.end();it++) {
 			Ball* ball1 = *it;
 			for (set<Ball*>::iterator it2 = balls.begin();it2 != balls.end(); it2++) {
 				Ball* ball2 = *it2;
-				//This test makes sure that we only add each pair once
+				// Nos aseguramos que agregamos cada par solamente una vez. 
 				if (ball1 < ball2) {
 					BallPair bp;
 					bp.ball1 = ball1;
@@ -267,6 +317,7 @@ void GLOctree::potentialBallBallCollisions(vector<BallPair> &collisions) {
 	}
 }
 
+// Agrega las colisiones potenciales entre cada pared y las pelotas. 
 void GLOctree::potentialBallWallCollisions(vector<BallWallPair> &collisions) {
 	potentialBallWallCollisions(collisions, WALL_LEFT, 'x', 0);
 	potentialBallWallCollisions(collisions, WALL_RIGHT, 'x', 1);
@@ -276,6 +327,7 @@ void GLOctree::potentialBallWallCollisions(vector<BallWallPair> &collisions) {
 	potentialBallWallCollisions(collisions, WALL_NEAR, 'z', 1);
 }
 
+// Nos ayuda a debuguear la creacion del arbol
 void GLOctree::printCHildren(int tab, GLOctree* raiz)
 {
 		
@@ -306,52 +358,40 @@ void GLOctree::printCHildren(int tab, GLOctree* raiz)
 
 }
 
+//Va a encontrar todas las colisiones posibles entre pares de pelotas. Va a
+//guardar los resultados en el vector @potentialCollisions. Realiza esto al 
+//llamar uno de los metodos del Octree potentialBallBallCollisions()
 void potentialBallBallCollisions(vector<BallPair> &potentialCollisions,
 	vector<Ball*> &balls, GLOctree* octree) {
-	//Fast method
+	//Metodo Rapido
 	octree->potentialBallBallCollisions(potentialCollisions);
 
-	/*
-	//Slow method
-	for(unsigned int i = 0; i < balls.size(); i++) {
-	for(unsigned int j = i + 1; j < balls.size(); j++) {
-	BallPair bp;
-	bp.ball1 = balls[i];
-	bp.ball2 = balls[j];
-	potentialCollisions.push_back(bp);
-	}
-	}
-	//*/
+	//Metodo Lento
+	//iterativeMethodBallBallCollision(potentialCollisions, balls);
 }
 
-//Puts potential ball-wall collisions in potentialCollisions.  It must return
-//all actual collisions, but it need not return only actual collisions.
+//Busca todas las posibles colisiones entre una pelota y una pared. Va a guardar
+//los resultados en el vector @potentialCollisions. Realiza esto al llamar uno
+//de los metodos del Octree potentialBallWallCollsions()
 void potentialBallWallCollisions(vector<BallWallPair> &potentialCollisions,
 	vector<Ball*> &balls, GLOctree* octree) {
-	//Fast method
+	//Metodo Rapido
 	octree->potentialBallWallCollisions(potentialCollisions);
 
-	/*
-	//Slow method
-	Wall walls[] =
-	{WALL_LEFT, WALL_RIGHT, WALL_FAR, WALL_NEAR, WALL_TOP, WALL_BOTTOM};
-	for(unsigned int i = 0; i < balls.size(); i++) {
-	for(int j = 0; j < 6; j++) {
-	BallWallPair bwp;
-	bwp.ball = balls[i];
-	bwp.wall = walls[j];
-	potentialCollisions.push_back(bwp);
-	}
-	}
-	//*/
+	//Metodo Lento
+	//iterativeMethodBallWallCollision(potentialCollisions, balls);
 }
 
-//Returns whether two balls are colliding
+// Prueba si dos pelotas estan colisionando una contra la otra. Hace esto dependiendo
+// si la distancia de cualquiera de las dos pelotas es menor que la suma de los radios.
+// Si estan muy cerca queremos hacer una revisada extra de que si estan colisionando.
+// Si las pelotas se estan moviendo en sentidos opuestos una de otra entonces decimos que
+// no estan colisinando, porque significa que probablemente acaban de rebotar.
 bool testBallBallCollision(Ball* b1, Ball* b2) {
-	//Check whether the balls are close enough
+	//Revisa si las pelotas estan lo suficientemente cerca.
 	float r = b1->getRadius() + b2->getRadius();
 	if ((b1->getPositionV() - b2->getPositionV()).magnitudeSquared() < r * r) {
-		//Check whether the balls are moving toward each other
+		//Revisa si las pelotas se estan acercando hacia ellas.
 		vector3 netVelocity = b1->getVelocity() - b2->getVelocity();
 		vector3 displacement = b1->getPositionV() - b2->getPositionV();
 		return dot(netVelocity, displacement) < 0;
@@ -360,7 +400,12 @@ bool testBallBallCollision(Ball* b1, Ball* b2) {
 		return false;
 }
 
-//Handles all ball-ball collisions
+// Va a encontrar todas las colisiones potenciales entre pelotas usando 
+// potentialBallBallCollsions(). Luego va a recorrer todo el vector @bsp que 
+// contiene las colisiones potenciales y revisar si si hay colisiones con
+// testBallBallCollision(). En el caso que si exista va a realizar las 
+// matematicas para cambiar la direccion de ambas pelotas y que reboten sin que
+// pierdan su velocidad.
 void handleBallBallCollisions(vector<Ball*> &balls, GLOctree* octree) {
 	vector<BallPair> bps;
 	potentialBallBallCollisions(bps, balls, octree);
@@ -371,7 +416,7 @@ void handleBallBallCollisions(vector<Ball*> &balls, GLOctree* octree) {
 		Ball* b1 = bp.ball1;
 		Ball* b2 = bp.ball2;
 		if (testBallBallCollision(b1, b2)) {
-			//Make the balls reflect off of each other
+			// Hacemos que las pelotas parezcan que rebotan.
 			vector3 displacement = (b1->getPositionV() - b2->getPositionV()).normalise() ;
 			b1->setVelocity(b1->getVelocity() - ((displacement * 2) * dot(b1->getVelocity(), displacement)) );
 			b2->setVelocity(b2->getVelocity() - ((displacement * 2) * dot(b2->getVelocity(), displacement)) );
@@ -379,7 +424,7 @@ void handleBallBallCollisions(vector<Ball*> &balls, GLOctree* octree) {
 	}
 }
 
-//Returns the direction from the origin to the wall
+// Regresa la direccion del centro del cubo a una pared en particular.
 vector3 wallDirection(Wall wall) {
 	switch (wall) {
 	case WALL_LEFT:
@@ -399,25 +444,21 @@ vector3 wallDirection(Wall wall) {
 	}
 }
 
-//Returns whether a ball and a wall are colliding
+// Prueba si una pelota y una pared estan realmente colisionando. Revisa esto al
+// sumar la posicion actual de la pelota mas su radio es mayor que el centro de
+// de la caja. Tambien hacemos una revision etra al ver si la pelota acaba o no
+// de rebotar sobre la pared.
 bool testBallWallCollision(Ball* ball, Wall wall) {
 	vector3 dir = wallDirection(wall);
-	//Check whether the ball is far enough in the "dir" direction, and whether
-	//it is moving toward the wall
-/*	cout << endl;
-	cout << dot(ball->getPositionV(), dir) << endl;
-	cout << ball->getRadius() << endl;
-	cout << (BOX_SIZE / 2) << endl;
-	cout << dot(ball->getVelocity(), dir) << endl;
-	cout << dir.v[0] << ":" << dir.v[1] << ":" << dir.v[2] << endl;
-	cout << ball->getPositionV().v[0] << ":" << ball->getPositionV().v[1] << ":" << ball->getPositionV().v[2] << endl;
-	cout << ball->getVelocity().v[0] << ":" << ball->getVelocity().v[1] << ":" << ball->getVelocity().v[2] << endl;*/
 	return dot(ball->getPositionV(), dir) + ball->getRadius() > BOX_SIZE / 2 &&
 		dot(ball->getVelocity(), dir) > 0;
 
 }
 
-//Handles all ball-wall collisions
+//Va a encontrar todas las colisiones potenciales entre pelotas y paredes usando
+//potentialBallWallCollisions(). Despues va a iterar sobre ese vector llamando
+//testBallWallCollision() para saber si es en verdad una colision. De ser asi,
+//refleja la pelota fuera de la pared sin perder su velocidad.
 void handleBallWallCollisions(vector<Ball*> &balls, GLOctree* octree) {
 	vector<BallWallPair> bwps;
 	potentialBallWallCollisions(bwps, balls, octree);
@@ -427,9 +468,42 @@ void handleBallWallCollisions(vector<Ball*> &balls, GLOctree* octree) {
 		Ball* b = bwp.ball;
 		Wall w = bwp.wall;
 		if (testBallWallCollision(b, w)) {
-			//Make the ball reflect off of the wall
+			//Hace que la pelota rebote de la pared.
 			vector3 dir = (wallDirection(w)).normalise();
 			b->setVelocity(b->getVelocity() - ((dir * 2) * dot(b->getVelocity(), dir))); 
+		}
+	}
+
+}
+
+//Prueba todos los escenarios posibles. Todas las colisiones entre pelotas.
+void iterativeMethodBallBallCollision(vector<BallPair> &potentialCollisions, vector<Ball*> &balls)
+{
+	for (unsigned int i = 0; i < balls.size(); i++) {
+		for (unsigned int j = i + 1; j < balls.size(); j++) {
+			BallPair bp;
+			bp.ball1 = balls[i];
+			bp.ball2 = balls[j];
+			potentialCollisions.push_back(bp);
+		}
+	}
+}
+
+//Prueba todos los escenarios posibles. Todas las colisiones entre pelotas y paredes.
+void iterativeMethodBallWallCollision(vector<BallWallPair> &potentialCollisions, vector<Ball*> &balls)
+{
+	Wall walls[] = { WALL_LEFT,
+		WALL_RIGHT,
+		WALL_FAR,
+		WALL_NEAR,
+		WALL_TOP,
+		WALL_BOTTOM };
+	for (unsigned int i = 0; i < balls.size(); i++) {
+		for (int j = 0; j < 6; j++) {
+			BallWallPair bwp;
+			bwp.ball = balls[i];
+			bwp.wall = walls[j];
+			potentialCollisions.push_back(bwp);
 		}
 	}
 }
