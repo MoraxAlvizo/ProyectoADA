@@ -5,6 +5,11 @@
 #include "GLProgram.h"
 #include "MathUtils.h"
 
+// Guarda toda la informacion sobre una pelota en particular. En este caso:
+// @object es el apuntador a los buffers de las pelotas.
+// @program es el apuntador a los shaders de las pelotas.
+// @v es la velocidad que tiene cada pelota en particular.
+// @r es el radio de cada pelota.
 class GLMesh
 {
 private:
@@ -12,8 +17,8 @@ private:
 	GLProgram* program;
 	vector3 position;
 	matriz4x4 matPosition;
-	vector3 v; //Velocity
-	float r; //Radius
+	vector3 v;
+	float r;
 
 public:
 	GLMesh(GLObject* object, vector3 position, GLProgram* program);

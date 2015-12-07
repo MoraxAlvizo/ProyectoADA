@@ -15,7 +15,8 @@ void GLScene::addMesh(GLMesh* m)
 	meshes.push_back(m);
 }
 
-//Moves all of the balls by their velocity times dt
+//Mueve todas las pelotas cada delta entre el frame actual y el frame anterior.
+//Ademas de moverlas revisa las colisiones entre pelotas y pelotas contra pared.
 void GLScene::moveAll(float dt, GLOctree* octree, bool isParallel)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
